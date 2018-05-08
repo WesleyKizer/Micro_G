@@ -1,10 +1,10 @@
 #include "test_tube.h"
 
 
-void test_tube::setTempPins(int temp1, int temp2, int temp3){
+void test_tube::setTempPins(int temp1, int temp2){
   temp1_pin = temp1; //needs to be the sensor closed to the heater
   temp2_pin = temp2;
-  temp3_pin = temp3;
+  //temp3_pin = temp3;
 }
 
 void test_tube::setServo(int mid, int pin){
@@ -13,11 +13,15 @@ void test_tube::setServo(int mid, int pin){
 
 }
 
-void test_tube::setSw(int close, int open){
-  sw_close_pin = close;
-  sw_open_pin = open;
+void test_tube::setSw(int sw){
+  sw_pin = sw;
 
 }
+
+void test_tube::setShaker(int shaker){
+  shaker_pin = shaker;
+}
+
 
 void test_tube::setHeater(int pin, int temp, int range){
   heater_pin = pin;
@@ -28,7 +32,7 @@ void test_tube::setHeater(int pin, int temp, int range){
 }
 
 void test_tube::actForward(int speed){
-  pinMode(sw_open_pin, INPUT_PULLUP);
+  pinMode(sw_pin, INPUT_PULLUP);
   constServo.write(servo_mid + speed);
 
 }
@@ -39,26 +43,25 @@ void test_tube::stopHeater(){
 
 void test_tube::testHeater(){
   float temp;
-  while(1){
+  float t=0;
+  while(t<240){
     //Take temp reading
+    delay(250);
     temp = getTempReading(temp1_pin);
-
     if(temp<=(set_temp-temp_range)) digitalWrite(heater_pin, HIGH);
-
     if(temp>=(set_temp+temp_range)) digitalWrite(heater_pin, LOW);
-
+    t++;
   }
+  stopHeater();
 }
 
 void test_tube::getSample(int speed){
-  pinMode(sw_open_pin, INPUT_PULLUP);
-  attachInterrupt(sw_open_pin, tubeOpen, RISING);
-  //start servo
+    //start servo
   constServo.write(servo_mid + speed);
   //start heater
 
   float temp;
-  while(1){
+  while(sw_pin != CHANGE){
     //Take temp reading
     temp = getTempReading(temp1_pin);
 
@@ -67,6 +70,15 @@ void test_tube::getSample(int speed){
     if(temp>=(set_temp+temp_range)) digitalWrite(heater_pin, LOW);
 
   }
+  stopServo();
+  analogWrite(shaker_pin, HIGH);
+  delay(2000);
+  analogWrite(shaker_pin, LOW);
+  retract(speed);
+  delay(2000);
+  while(sw_pin != CHANGE){}
+  stopServo();
+
 
 }
 
@@ -95,21 +107,15 @@ void test_tube::retract(int speed){
 }
 
 void test_tube::test(int speed){
-  bool button1 = analogRead(sw_open_pin);
-  bool button2 = analogRead(sw_close_pin);
-  do{
-    constServo.write(servo_mid + speed);
-  }while(!button1);
-    constServo.write(servo_mid);
-    //delay(500);
-  do{
-    constServo.write(servo_mid - speed);
-  }while(!button2);
-  constServo.write(servo_mid);
-  //delay(500);
+  constServo.write(servo_mid + speed);
+  while(sw_pin != CHANGE){}
+  constServo.write(servo_mid - speed);
+  delay(1000);
+  while(sw_pin != CHANGE){}
+  stopServo();
 
 }
-
+/*
 void test_tube::tubeOpen(){
   //stop servo
   if(!set){setUp();}
@@ -119,14 +125,15 @@ void test_tube::tubeOpen(){
 
 void test_tube::tubeClosed(){
   constServo.write(servo_mid);
-}
+}*/
 
 void test_tube::setUp(){
   constServo.attach(servo_pin);
-  set = true;
+  //set = true;
   pinMode(heater_pin, OUTPUT);
   digitalWrite(heater_pin, LOW);
-  digitalPinToInterrupt(sw_open_pin);
+  pinMode(sw_pin, INPUT);
+  //digitalPinToInterrupt(sw_open_pin);
 
 
 }
