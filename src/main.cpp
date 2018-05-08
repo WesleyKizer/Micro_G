@@ -39,7 +39,26 @@ void setup(){
 void loop(){
 
   if(Serial.available() > 0){
-    //switch()
+
+    char switcher = Serial.read(); //= switcher;
+
+    switch (switcher){
+
+      case '1':
+        tube1.test(servoSpeed);
+        break;
+
+      case '2':
+        tube2.test(servoSpeed);
+        break;
+
+      case '3':
+        tube3.test(servoSpeed);
+        break;
+    }
+}
+}
+    /*switch()
   }
 
 
@@ -48,4 +67,4 @@ void loop(){
 
 
 }
-
+*/
