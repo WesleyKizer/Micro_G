@@ -13,19 +13,20 @@ class test_tube{
   int temp_range;
   int temp1_pin;
   int temp2_pin;
-  int temp3_pin;
-  int sw_close_pin;
-  int sw_open_pin;
-  bool set;
-  void tubeOpen(void);
-  void tubeClosed(void);
+  //int temp3_pin;
+  int sw_pin;
+  int shaker_pin;
+//bool set;
+  //void tubeOpen(void);
+  //void tubeClosed(void);
   float getTempReading(int);
   Servo constServo;
 public:
-  void setTempPins(int,int,int);
+  void setTempPins(int,int);
   void setServo(int, int);
   void stopServo();
-  void setSw(int, int);
+  void setSw(int);
+  void setShaker(int);
   void setHeater(int, int, int);
   void testHeater();
   void stopHeater();
@@ -38,3 +39,4 @@ public:
 };
 
 #endif
+
