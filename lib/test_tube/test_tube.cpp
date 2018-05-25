@@ -32,11 +32,19 @@ void test_tube::setHeater(int pin, int temp, int range){
 }
 
 void test_tube::actForward(int speed){
-  pinMode(sw_pin, INPUT_PULLUP);
-  constServo.write(servo_mid + speed);
+  //pinMode(sw_pin, INPUT_PULLUP);
+  constServo.write(servo_mid - speed);
+  while(digitalRead(sw_pin) != CHANGE){}
+  constServo.write(servo_mid);
 
 }
 
+void test_tube::actBackward(int speed){
+	constServo.write(servo_mid + speed);
+	while(digitalRead(sw_pin) == CHANGE){}
+	constServo.write(servo_mid);
+
+}
 void test_tube::stopHeater(){
   digitalWrite(heater_pin, LOW);
 }
@@ -57,13 +65,14 @@ void test_tube::testHeater(){
 
 void test_tube::getSample(int speed){
     //start servo
-  constServo.write(servo_mid + speed);
+  constServo.write(servo_mid - speed);
   //start heater
 
   float temp;
-  while(sw_pin != CHANGE){
+  while(digitalRead(sw_pin) != CHANGE){
     //Take temp reading
     temp = getTempReading(temp1_pin);
+	Serial.println(temp);
 
     if(temp<=(set_temp-temp_range)) digitalWrite(heater_pin, HIGH);
 
@@ -74,10 +83,10 @@ void test_tube::getSample(int speed){
   analogWrite(shaker_pin, HIGH);
   delay(2000);
   analogWrite(shaker_pin, LOW);
-  retract(speed);
+  constServo.write(servo_mid + speed);
   delay(2000);
-  while(sw_pin != CHANGE){}
-  stopServo();
+  while(digitalRead(sw_pin) == CHANGE){}
+  constServo.write(servo_mid);
 
 
 }
@@ -101,18 +110,17 @@ float test_tube::getTempReading(int pin){
 }
 
 
-
+/*
 void test_tube::retract(int speed){
   constServo.write(servo_mid - speed);
-}
+}*/
 
 void test_tube::test(int speed){
-  constServo.write(servo_mid + speed);
-  while(sw_pin != CHANGE){}
-  constServo.write(servo_mid - speed);
-  delay(1000);
-  while(sw_pin != CHANGE){}
-  stopServo();
+	constServo.write(servo_mid - speed);
+	while(digitalRead(sw_pin) != CHANGE){}
+	constServo.write(servo_mid + speed);
+	while(digitalRead(sw_pin) == CHANGE){}
+	constServo.write(servo_mid);
 
 }
 /*
