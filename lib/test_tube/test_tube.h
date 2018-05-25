@@ -31,7 +31,8 @@ public:
   void testHeater();
   void stopHeater();
   void actForward(int);
-  void retract(int);
+  void actBackward(int);
+  //void retract(int);
   void test(int);
   void setUp(void);
   void getSample(int);
@@ -39,4 +40,5 @@ public:
 };
 
 #endif
+
 
