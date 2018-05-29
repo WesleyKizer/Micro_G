@@ -89,7 +89,6 @@ void sample_tube::testAct(int speed){
 }
 
 void sample_tube::actForward(int speed){
-  //pinMode(sw_pin, INPUT_PULLUP);
   constServo.write(servo_mid - speed);
   while(digitalRead(sw_pin) == CHANGE){}
   constServo.write(servo_mid);
@@ -132,27 +131,4 @@ void sample_tube::getSample(int speed){
 
 
 }
-
-
-
-
-
-
-/*
-void sample_tube::retract(int speed){
-  constServo.write(servo_mid - speed);
-}*/
-
-
-/*
-void sample_tube::tubeOpen(){
-  //stop servo
-  if(!set){setUp();}
-  constServo.write(servo_mid);
-  //stop heater
-}
-
-void sample_tube::tubeClosed(){
-  constServo.write(servo_mid);
-}*/
 
