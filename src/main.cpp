@@ -1,109 +1,144 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/*    Author:           Wesley Kizer                                                            */
+/*    Name:             Micro-G_TISC                                                            */
+/*    Last Updated:     05/28/2018                                                              */
+/*    Description:      This program is for SEDS TnTech's entry into 2018 Micro-g NExT          */
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <declarations.h>  //pin constants
 #include <Servo.h>
 #include <Arduino.h>
-#include <test_tube.h>
+#include <sample_tube.h>
+#include <main_body.h>
 #include <Wire.h>
 
-test_tube tube1;
-test_tube tube2;
-test_tube tube3;
+sample_tube tube1;
+sample_tube tube2;
+sample_tube tube3;
+main_body mainBody;
 
-void mainBodyActForward(int);
+char inChar;
 
-const int mainServoPin = 9;
-const int mainServoMid = 90;
-const int servoPin = 9;
-const int servoMid = 92;
-const int heaterPin = 0;
-const int setTemp = 60;
-const int tempRange = 5;
-const int tempPin1 = 11;
-const int tempPin2 = 7;
-const int tempPin3 = 8;
+
+//operations variables
 const int servoSpeed = 50;
-const int buttonPin = 2;
-const int eStopPin = 1;
-const int Hall1 = 19;
+const int setTemp = 60;
+const int testTemp = 40;
+const int tempRange = 5;
 
-Servo constServo;
+
+void serialEvent();  //serial interupt
+void stopAll(); //this function will stop all tubes/main-body actuations and turn of cutting heads
+
 
 void setup(){
-  constServo.attach(mainServoPin);
+
+  //class variable declarations
+  tube1.setSampleTube(tempPin1, tempPin1, tempPin1, tempRange, testTemp);
+  tube1.setAct(servoMid1, servoPin1, Hall1);
+  tube2.setSampleTube(tempPin2, tempPin2, tempPin2, tempRange, testTemp);
+  tube2.setAct(servoMid2, servoPin2, Hall2);
+  tube3.setSampleTube(tempPin3, tempPin3, tempPin3, tempRange, testTemp);
+  tube3.setAct(servoMid3, servoPin3, Hall3);
+  mainBody.setAct(mainServoMid, mainServoPin, mainHall);
 
   
-  Serial.begin(9600);
-  Serial.println("Setting Up.");
-  Serial.println("");
-  tube1.setServo(servoMid, servoPin);
-  tube1.setSw(Hall1);
-  pinMode(Hall1, INPUT);
-
-  //tube1.setHeater(heaterPin, setTemp, tempRange);
-  //tube1.setTempPins(tempPin1, tempPin2, tempPin3);
+  //setting pin modes
   tube1.setUp();
-
-  Serial.println("Set Up Complete.");
-  Serial.println("");
+  tube2.setUp();
+  tube3.setUp();
+  mainBody.setUp();
 
 }
 
-mainBodyActForward(servoSpeed);
+void loop(){
 
-  ///////////// 
-  /*
-  int dig = 0;
-  
-  
-  dig = digitalRead(Hall1);
-  
-  Serial.print("Digital Read:  ");
-  Serial.println(dig);
-  tube1.getSample(servoSpeed);
-  //tube1.test(servoSpeed);
-  //tube1.actForward(servoSpeed);
-  //tube1.actBackward(servoSpeed);
-  //tube1.stopServo();
-  delay(3000);
-  Serial.println("after test");
-  tube1.stopServo();
-  Serial.println("after stop");
-
-  */ ////////////////
-  
-  
-  /*
-
-  if(Serial.available() > 0){
-
-    char switcher = Serial.read(); //= switcher;
-
-    switch (switcher){
-
-      case '1':
-        tube1.test(servoSpeed);
-        break;
-
-      case '2':
-        tube2.test(servoSpeed);
-        break;
-
-      case '3':
-        tube3.test(servoSpeed);
-        break;
-    }
 }
-}
-    /*switch()
+
+
+void serialEvent(){
+
+  while(Serial.available()){
+    inChar = (char)Serial.read();
+    
+    
   }
-  tube1.test(servoSpeed);
+  switch(inChar){
+    case 'A':
+      mainBody.testAct(servoSpeed); 
+    case 'B':
+      tube1.testAct(servoSpeed);
+    case 'C':
+      tube2.testAct(servoSpeed);
+    case 'D':
+      tube3.testAct(servoSpeed);
+    case 'E':
+      tube1.testHeater();
+    case 'F':
+      tube2.testHeater();
+    case 'G':
+      tube3.testHeater();
+    case 'H':
+      
+    case 'I':
+      
+    case 'J':
+      
+    case 'K':
+      
+    case 'L':
+      mainBody.stopServo();
+    case 'M':
+      mainBody.actForward(servoSpeed);
+    case 'N':
+      mainBody.actBackward(servoSpeed);
+    case 'O':
+      tube1.stopServo();
+    case 'P':
+      tube1.stopHeater();
+    case 'Q':
+      tube1.actForward(servoSpeed);
+    case 'R':
+      tube1.actBackward(servoSpeed);
+    case 'T':
+      tube1.getSample(servoSpeed);
+    case 'U':
+      tube2.stopServo();
+    case 'V':
+      tube2.stopHeater();
+    case 'W':
+      tube2.actForward(servoSpeed);
+    case 'X':
+      tube2.actBackward(servoSpeed);
+    case 'Y':
+      tube2.getSample(servoSpeed);
+    case 'Z':
+      tube3.stopServo();
+    case 'a':
+      tube3.stopHeater();
+    case 'b':
+      tube3.actForward(servoSpeed);
+    case 'c':
+      tube3.actBackward(servoSpeed);
+    case 'd':
+      tube3.getSample(servoSpeed);
+    case 'e':
+
+    case 's':
+    case 'S':
+        stopAll();
+  }
+  
 }
-*/
+
+void stopAll(){
+  mainBody.stopServo();
+  tube1.stopServo();
+  tube2.stopServo();
+  tube3.stopServo();
+  tube1.stopHeater();
+  tube2.stopHeater();
+  tube3.stopHeater();
 }
 
 
-void mainBodyActForward(int speed){
-  //pinMode(sw_pin, INPUT_PULLUP);
-  constServo.write(mainServoMid - speed);
-  //while(digitalRead(sw_pin) != CHANGE){}
-  //mainServo.write(mainServo_mid);
-
-}
