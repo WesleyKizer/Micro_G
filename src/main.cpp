@@ -25,13 +25,18 @@ const int servoSpeed = 50;
 const int setTemp = 60;
 const int testTemp = 40;
 const int tempRange = 5;
+const int interruptPin = 6;
 
 
-void serialEvent();  //serial interupt
+void message();  //serial interupt
 void stopAll(); //this function will stop all tubes/main-body actuations and turn of cutting heads
 
 
 void setup(){
+
+  Serial1.begin(9600);
+  pinMode(interruptPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), message, HIGH);
 
   //class variable declarations
   tube1.setSampleTube(tempPin1, tempPin1, tempPin1, tempRange, testTemp);
@@ -56,28 +61,35 @@ void loop(){
 }
 
 
-void serialEvent(){
+void message(){
 
-  while(Serial.available()){
-    inChar = (char)Serial.read();
+  while(Serial1.available()){
+    inChar = (char)Serial1.read();
     
     
   }
   switch(inChar){
     case 'A':
       mainBody.testAct(servoSpeed); 
+      Serial1.print('A');
     case 'B':
       tube1.testAct(servoSpeed);
+      Serial1.print('B');
     case 'C':
       tube2.testAct(servoSpeed);
+      Serial1.print('C');
     case 'D':
       tube3.testAct(servoSpeed);
+      Serial1.print('D');
     case 'E':
       tube1.testHeater();
+      Serial1.print('E');
     case 'F':
       tube2.testHeater();
+      Serial1.print('F');
     case 'G':
       tube3.testHeater();
+      Serial1.print('G');
     case 'H':
       
     case 'I':
@@ -88,45 +100,63 @@ void serialEvent(){
       
     case 'L':
       mainBody.stopServo();
+      Serial1.print('L');
     case 'M':
       mainBody.actForward(servoSpeed);
+      Serial1.print('M');
     case 'N':
       mainBody.actBackward(servoSpeed);
+      Serial1.print('N');
     case 'O':
       tube1.stopServo();
+      Serial1.print('O');
     case 'P':
       tube1.stopHeater();
+      Serial1.print('P');
     case 'Q':
       tube1.actForward(servoSpeed);
+      Serial1.print('Q');
     case 'R':
       tube1.actBackward(servoSpeed);
+      Serial1.print('R');
     case 'T':
       tube1.getSample(servoSpeed);
+      Serial1.print('T');
     case 'U':
       tube2.stopServo();
+      Serial1.print('U');
     case 'V':
       tube2.stopHeater();
+      Serial1.print('V');
     case 'W':
       tube2.actForward(servoSpeed);
+      Serial1.print('W');
     case 'X':
       tube2.actBackward(servoSpeed);
+      Serial1.print('X');
     case 'Y':
       tube2.getSample(servoSpeed);
+      Serial1.print('Y');
     case 'Z':
       tube3.stopServo();
+      Serial1.print('Z');
     case 'a':
       tube3.stopHeater();
+      Serial1.print('a');
     case 'b':
       tube3.actForward(servoSpeed);
+      Serial1.print('b');
     case 'c':
       tube3.actBackward(servoSpeed);
+      Serial1.print('c');
     case 'd':
       tube3.getSample(servoSpeed);
+      Serial1.print('d');
     case 'e':
 
-    case 's':
     case 'S':
         stopAll();
+        Serial1.print('S');
   }
   
 }
@@ -140,5 +170,4 @@ void stopAll(){
   tube2.stopHeater();
   tube3.stopHeater();
 }
-
 
