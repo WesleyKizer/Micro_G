@@ -29,7 +29,7 @@ void main_body::testAct(int speed){
 }
 
 void main_body::actForward(int speed){
-  //pinMode(sw_pin, INPUT_PULLUP);
+ 
   constServo.write(servo_mid - speed);
   while(digitalRead(sw_pin) == CHANGE){}
   constServo.write(servo_mid);
@@ -42,4 +42,3 @@ void main_body::actBackward(int speed){
 	constServo.write(servo_mid);
 
 }
-
