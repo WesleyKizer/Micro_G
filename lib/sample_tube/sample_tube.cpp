@@ -31,17 +31,31 @@ void sample_tube::setAct(int mid, int pin, int sw){
   sw_pin = sw;
 }
 
+void sample_tube::setPWM(){
+	char input = 'N';
+	while(input != 'Y'){
+		Serial.println("What % duty cycle?");
+		duty = Serial.read();
+		Serial.println("Is " duty "% correct(Y/N)");
+		input = Serial.read();
+		
+	}
+	
+	
+}
+
 void sample_tube::setUp(){
   constServo.attach(servo_pin);
   pinMode(heater_pin, OUTPUT);
   digitalWrite(heater_pin, LOW);
   pinMode(sw_pin, INPUT);
+  duty = 0.2;
 
 }
 
 
 void sample_tube::stopServo(){
-  constServo.write(servo_mid);
+  constServo.detach();
 }
 
 void sample_tube::stopHeater(){
@@ -80,25 +94,25 @@ void sample_tube::testHeater(){
 }
 
 void sample_tube::testAct(int speed){
-	constServo.write(servo_mid - speed);
-	while(digitalRead(sw_pin) != CHANGE){}
-	constServo.write(servo_mid + speed);
-	while(digitalRead(sw_pin) == CHANGE){}
-	constServo.write(servo_mid);
+	constServo.attach(servo_pin);
+	while(!digitalRead(sw_pin))constServo.write(servo_mid - speed);
+	while(digitalRead(sw_pin))constServo.write(servo_mid + speed);
+	constServo.detach();
 
 }
 
 void sample_tube::actForward(int speed){
-  constServo.write(servo_mid - speed);
-  while(digitalRead(sw_pin) == CHANGE){}
-  constServo.write(servo_mid);
+	constServo.attach(servo_pin);
+	constServo.write(servo_mid + speed);
+	//while(!digitalRead(sw_pin))constServo.write(servo_mid + speed);
+	//constServo.detach();
 
 }
 
 void sample_tube::actBackward(int speed){
-	constServo.write(servo_mid + speed);
-	while(digitalRead(sw_pin) == CHANGE){}
-	constServo.write(servo_mid);
+	constServo.attach(servo_pin);
+	while(digitalRead(sw_pin))constServo.write(servo_mid - speed);
+	constServo.detach();
 
 }
 
@@ -107,28 +121,45 @@ void sample_tube::actBackward(int speed){
 
 void sample_tube::getSample(int speed){
     //start servo
-  constServo.write(servo_mid - speed);
-  //start heater
+	constServo.attach(servo_pin);
+	constServo.write(servo_mid - speed);
+	//start heater
 
-  float temp;
-  while(digitalRead(sw_pin) == CHANGE){
-    //Take temp reading
-    temp = getTempReading(temp_pin);
-	Serial.println(temp);
+	//float temp;
+	digitalWrite(heater_pin, HIGH);
+	while(!digitalRead(sw_pin)){
+		
+		digitalWrite(heater_pin, HIGH);
+		delayMictosectonds(period*(duty/100));
+		digitalWrite(heater_pin, LOW);
+		delayMicrosectonds(period-(period*(duty/100));
+		
+		//if((micros()-startTime) >= 1000000){
+			
+			//digitalWrite(heater_pin, CHANGE);
+			
+			
+			//startTime = micros();
+		//}
+		
+		
+		//Take temp reading
+		//temp = getTempReading(temp_pin);
+		//Serial.println(temp);
 
-    if(temp<=(set_temp-temp_range)) digitalWrite(heater_pin, HIGH);
+		//if(temp<=(set_temp-temp_range)) digitalWrite(heater_pin, HIGH);
 
-    if(temp>=(set_temp+temp_range)) digitalWrite(heater_pin, LOW);
+		//if(temp>=(set_temp+temp_range)) digitalWrite(heater_pin, LOW);
 
-  }
-  constServo.write(servo_mid);
-  digitalWrite(heater_pin, LOW);
-  delay(2000);
-  constServo.write(servo_mid + speed);
-  delay(2000);
-  while(digitalRead(sw_pin) == CHANGE){}
-  constServo.write(servo_mid);
+	}
+	constServo.detach();
+	digitalWrite(heater_pin, LOW);
+	delay(2000);
+	constServo.attach(servo_pin);
+	constServo.write(servo_mid + speed);
+	delay(2000);
+	while(digitalRead(sw_pin))constServo.write(servo_mid + speed);
+	constServo.detach();
 
 
 }
-
