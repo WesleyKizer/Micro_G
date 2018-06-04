@@ -16,12 +16,15 @@ class sample_tube{
   int temp_pin;
   int sw_pin;
   int shaker_pin;
+  float period;
+  float duty;
   bool heaterOk;
   float getTempReading(int);
   Servo constServo;
 public:
   void setSampleTube(int, int, int, int, int);
   void setAct(int, int, int);
+  void setPWM();
   void setUp(void);
   void stopServo();
   void stopHeater();
@@ -34,4 +37,5 @@ public:
 };
 
 #endif
+
 
