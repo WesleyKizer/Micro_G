@@ -25,18 +25,18 @@ const int servoSpeed = 50;
 const int setTemp = 60;
 const int testTemp = 40;
 const int tempRange = 5;
-const int interruptPin = 6;
+//const int interruptPin = 6;
 
 
-void message();  //serial interupt
+//void message();  //serial interupt
 void stopAll(); //this function will stop all tubes/main-body actuations and turn of cutting heads
 
 
 void setup(){
 
-  Serial1.begin(9600);
-  pinMode(interruptPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), message, HIGH);
+  Serial.begin(9600);
+  //pinMode(interruptPin, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(interruptPin), message, HIGH);
 
   //class variable declarations
   tube1.setSampleTube(tempPin1, tempPin1, tempPin1, tempRange, testTemp);
@@ -45,7 +45,7 @@ void setup(){
   tube2.setAct(servoMid2, servoPin2, Hall2);
   tube3.setSampleTube(tempPin3, tempPin3, tempPin3, tempRange, testTemp);
   tube3.setAct(servoMid3, servoPin3, Hall3);
-  mainBody.setAct(mainServoMid, mainServoPin, mainHall);
+  mainBody.setAct(mainServoMid, mainServoPin, mainSW1, mainSW2);
 
   
   //setting pin modes
@@ -57,10 +57,17 @@ void setup(){
 }
 
 void loop(){
-
+    stopAll();
+    tube1.actBackward(servoSpeed);
+    tube2.actBackward(servoSpeed);
+    tube3.actBackward(servoSpeed);
+    Serial.println();
+    //tube1.testAct(servoSpeed);
+    //tube2.testAct(servoSpeed);
+    //tube3.testAct(servoSpeed);
 }
 
-
+/*
 void message(){
 
   while(Serial1.available()){
@@ -160,7 +167,7 @@ void message(){
   }
   
 }
-
+*/
 void stopAll(){
   mainBody.stopServo();
   tube1.stopServo();
